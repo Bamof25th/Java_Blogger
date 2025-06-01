@@ -2,6 +2,7 @@ package com.bam.blog.controllers;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
@@ -51,6 +52,19 @@ public class ErrorController {
                 .build();
 
         return new ResponseEntity<>(error, HttpStatus.CONFLICT);
+
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<ApiErrorResponse> handleBadCredentialsException(BadCredentialsException ex) {
+        // log.error("caught BadCredentialsException", ex);
+
+        ApiErrorResponse error = ApiErrorResponse.builder()
+                .status(HttpStatus.UNAUTHORIZED.value())
+                .message("Incorrect UserName or Password")
+                .build();
+
+        return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
 
     }
 
