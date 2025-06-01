@@ -2,6 +2,16 @@
 
 A modern blogging platform built with Spring Boot and React.
 
+## Repository
+
+This project is hosted on GitHub: https://github.com/Bamof25th/Java_Blogger.git
+
+To clone this repository:
+```bash
+git clone https://github.com/Bamof25th/Java_Blogger.git
+cd Java_Blogger
+```
+
 ## Project Structure
 
 The project is organized into two main directories:
