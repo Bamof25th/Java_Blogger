@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import com.bam.blog.services.AuthenticationService;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
@@ -21,7 +22,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class AuthenticationServiceInput implements AuthenticationService {
+public abstract class AuthenticationServiceInput implements AuthenticationService {
 
     private final AuthenticationManager authenticationManager;
     private final UserDetailsService userDetailsService;
@@ -29,7 +30,7 @@ public class AuthenticationServiceInput implements AuthenticationService {
     @Value("${jwt.secret}")
     private String secretKey;
 
-    private Long jwtEspiryMs = 86400000L;
+    private Long jwtExpiryMs = 86400000L;
 
     @Override
     public UserDetails authenticate(String email, String password) {
@@ -47,15 +48,32 @@ public class AuthenticationServiceInput implements AuthenticationService {
                 .setClaims(claims)
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + jwtEspiryMs))
+                .setExpiration(new Date(System.currentTimeMillis() + jwtExpiryMs))
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)
                 .compact();
 
     }
 
+    @Override
+    public UserDetails validateToken(String token) {
+
+        String userName = extractUserName(token);
+
+        return userDetailsService.loadUserByUsername(userName);
+    }
+
     private Key getSignInKey() {
         byte[] keyBytes = secretKey.getBytes();
         return Keys.hmacShaKeyFor(keyBytes);
+    }
+
+    private String extractUserName(String token) {
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(getSignInKey())
+                .build().parseClaimsJws(token)
+                .getBody();
+
+        return claims.getSubject();
     }
 
 }
