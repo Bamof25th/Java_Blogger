@@ -36,8 +36,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         userDetails, null, userDetails.getAuthorities());
                 SecurityContextHolder.getContext().setAuthentication(authentication);
 
-                if (userDetails instanceof BlogUserDetails) {
-                    request.setAttribute("userId", ((BlogUserDetails) userDetails).getId());
+                if (userDetails instanceof BlogUserDetails blogUserDetails) {
+                    request.setAttribute("userId", blogUserDetails.getId());
                 }
 
             }
