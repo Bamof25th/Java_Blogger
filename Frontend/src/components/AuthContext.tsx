@@ -51,15 +51,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, []);
 
   const login = useCallback(async (email: string, password: string) => {
-    const response = await apiService.login({ email, password });
-    
-    localStorage.setItem('token', response.token);
-    setToken(response.token);
-    setIsAuthenticated(true);
+    try {
+      const response = await apiService.login({ email, password });
+      
+      localStorage.setItem('token', response.token);
+      setToken(response.token);
+      setIsAuthenticated(true);
 
-    // TODO: Add endpoint to fetch user profile after login
-    // const userProfile = await apiService.getUserProfile();
-    // setUser(userProfile);
+      // TODO: Add endpoint to fetch user profile after login
+      // const userProfile = await apiService.getUserProfile();
+      // setUser(userProfile);
+    } catch (error) {
+      throw error;
+    }
   }, []);
 
   const logout = useCallback(() => {
