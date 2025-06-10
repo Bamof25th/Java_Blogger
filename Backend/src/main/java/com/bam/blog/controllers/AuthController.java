@@ -14,7 +14,7 @@ import com.bam.blog.services.AuthenticationService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/v1/auth")
+@RequestMapping("/api/v1/auth/login")
 @RequiredArgsConstructor
 public class AuthController {
     private final AuthenticationService authenticationService;
