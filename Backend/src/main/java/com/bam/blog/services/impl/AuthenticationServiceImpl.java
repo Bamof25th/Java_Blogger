@@ -22,7 +22,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public abstract class AuthenticationServiceInput implements AuthenticationService {
+public class AuthenticationServiceImpl implements AuthenticationService {
 
     private final AuthenticationManager authenticationManager;
     private final UserDetailsService userDetailsService;
@@ -30,7 +30,7 @@ public abstract class AuthenticationServiceInput implements AuthenticationServic
     @Value("${jwt.secret}")
     private String secretKey;
 
-    private Long jwtExpiryMs = 86400000L;
+    private final Long jwtExpiryMs = 86400000L;
 
     @Override
     public UserDetails authenticate(String email, String password) {
