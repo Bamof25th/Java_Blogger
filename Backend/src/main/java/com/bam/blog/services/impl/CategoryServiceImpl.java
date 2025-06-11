@@ -10,6 +10,7 @@ import com.bam.blog.domain.entities.Category;
 import com.bam.blog.repository.CategoryRepository;
 import com.bam.blog.services.CategoryService;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -44,6 +45,12 @@ public class CategoryServiceImpl implements CategoryService {
             }
             categoryRepository.deleteById(id);
         }
+    }
+
+    @Override
+    public Category getCategoryById(UUID id) {
+        return categoryRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Category not found with id" + id));
     }
 
 }

@@ -9,6 +9,10 @@ import com.bam.blog.domain.entities.Tag;
 public interface TagService {
 
     List<Tag> getTags();
-    List<Tag> createTags(Set<String> tagNames );
+
+    List<Tag> createTags(Set<String> tagNames);
+
     void deleteTag(UUID tagId);
+
+    Tag getTagById(UUID tagId);
 }
