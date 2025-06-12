@@ -4,12 +4,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.bam.blog.domain.CreatePostRequest;
 import com.bam.blog.domain.PostStatus;
+import com.bam.blog.domain.UpdatePostRequest;
 import com.bam.blog.domain.entities.Category;
 import com.bam.blog.domain.entities.Post;
 import com.bam.blog.domain.entities.Tag;
@@ -19,6 +21,7 @@ import com.bam.blog.services.CategoryService;
 import com.bam.blog.services.PostService;
 import com.bam.blog.services.TagService;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -84,4 +87,45 @@ public class PostServiceImpl implements PostService {
         int wordCount = content.trim().split("\\s+").length;
         return (int) Math.ceil((double) wordCount / WORDS_PER_MINUTE);
     }
+
+    @Transactional
+    @Override
+    public Post updatePost(UUID id, UpdatePostRequest updatePostRequest) {
+        Post existingPost = postRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Unable to find any post With id " + id));
+
+        existingPost.setTitle(updatePostRequest.getTitle());
+        existingPost.setContent(updatePostRequest.getContent());
+        existingPost.setStatus(updatePostRequest.getStatus());
+        existingPost.setReadingTime(calculateReadingTime(updatePostRequest.getContent()));
+
+        UUID updatePostRequestCategoryId = updatePostRequest.getCategoryId();
+        if (!existingPost.getCategory().getId().equals(updatePostRequestCategoryId)) {
+            Category newCategory = categoryService.getCategoryById(updatePostRequest.getCategoryId());
+            existingPost.setCategory(newCategory);
+        }
+
+        Set<UUID> existingTagIds = existingPost.getTags().stream().map(Tag::getId).collect(Collectors.toSet());
+        Set<UUID> updatePostRequestTagIds = updatePostRequest.getTagIds();
+        if (!existingTagIds.equals(updatePostRequestTagIds)) {
+            List<Tag> updatedTags = tagService.getTagByIds(updatePostRequestTagIds);
+            existingPost.setTags(new HashSet<>(updatedTags));
+        }
+
+        return postRepository.save(existingPost);
+    }
+
+    @Override
+    public Post getPost(UUID id) {
+        return postRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Unable to find any post With id " + id));
+    }
+
+    @Override
+    public void deletePost(UUID postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new EntityNotFoundException("Unable to find any post With id " + postId));
+        postRepository.delete(post);
+    }
+
 }
